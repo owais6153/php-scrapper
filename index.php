@@ -1,10 +1,12 @@
 <?php
 
+
+
 function pre($html){
     echo '<pre>';
     if(gettype($html) === 'string')
     echo $html;
-    else
+else
     print_r($html);
     echo '</pre>';
 }
@@ -19,69 +21,14 @@ function fetchPage($link){
 }
 
 
-$template = [
-    'Content With Multiple Images and Videos' => [
-            'title' => [
-                'selector' => ' div[@class="page_title2"] div[@class="title"] h1',
-                'type' => 'text',
-            ],
-            'sections_pageContent_0' => [
-                'selector' => ' div[@id="sections_pageContent_0"]',
-                'type' => 'html'
-            ],
-            'sections_image_0' => [
-                'selector' => ' img[@id="sections_image_0"]',
-                'type' => 'image'
-            ],
-            'sections_pageContent_1' => [
-                'selector' => ' div[@id="sections_pageContent_1"]',
-                'type' => 'html'
-            ],
-            'sections_image_1' => [
-                'selector' => ' img[@id="sections_image_1"]',
-                'type' => 'image'
-            ],
-            'sections_pageContent_2' => [
-                'selector' => ' div[@id="sections_pageContent_2"]',
-                'type' => 'html'
-            ],
-            'sections_image_2' => [
-                'selector' => ' img[@id="sections_image_2"]',
-                'type' => 'image'
-            ],
-            'sections_pageContent_3' => [
-                'selector' => ' div[@id="sections_pageContent_3"]',
-                'type' => 'html'
-            ],
-            'sections_image_3' => [
-                'selector' => ' img[@id="sections_image_3"]',
-                'type' => 'image'
-            ],
-            'sections_pageContent_4' => [
-                'selector' => ' div[@id="sections_pageContent_4"]',
-                'type' => 'html'
-            ],
-            'sections_image_4' => [
-                'selector' => ' img[@id="sections_image_4"]',
-                'type' => 'image'
-            ],
-            'sections_pageContent_5' => [
-                'selector' => ' div[@id="sections_pageContent_5"]',
-                'type' => 'html'
-            ],
-            'sections_image_5' => [
-                'selector' => ' img[@id="sections_image_5"]',
-                'type' => 'image'
-            ],
-            
-        ]
-            ];
 
+
+require_once (__DIR__ . '/templates.php');
 $pages = [
     [
         'wp_pageid' => 43, 
         'scrap_from' => 'https://www.illinoistreasurer.gov/Office_of_the_Treasurer/19th_Amendment_Commemorative_Coin',
-        'content_structure' => $template['Content With Multiple Images and Videos']
+        'content_structure' => $templates['Content With Multiple Images and Videos']
     ]
 ];
 
@@ -104,20 +51,23 @@ foreach($pages as $index => $page){
         if($contentStructure['type'] === 'text')
             $contentValue = isset($contentElements[0]) ? $contentElements->item(0)->textContent.PHP_EOL  :   "No {$key} found";
         else if($contentStructure['type'] === 'image'){
-            $imageUrl = $contentElements->item(0)->getAttribute('src');
+            $imageUrl = isset($contentElements[0]) ? $contentElements->item(0)->getAttribute('src') : '';
             if($imageUrl !== '' && $imageUrl !== '../#'){
                 $imageData = file_get_contents($FILE_URL_PREFIX . $imageUrl);
                 $filename = basename($imageUrl);
-                $savePath = $UPLOAD_TO . $filename; // Adjust this path as needed
+                $savePath = $UPLOAD_TO . $filename; 
                 file_put_contents($savePath, $imageData);
                 $contentValue = $savePath;
-            }
-            
+            }            
         }
         elseif($contentStructure['type'] === 'html') {
-            foreach ($contentElements as $element) {
-                $contentValue .= $doc->saveHTML($element);
-            }
+            if(count($contentElements) > 0)
+                foreach ($contentElements as $element) {
+                    $contentValue .= $doc->saveHTML($element);
+                }
+        } 
+        elseif($contentStructure['type'] === 'link'){
+             $contentValue = isset($contentElements[0]) ? $contentElements->item(0)->getAttribute('href') : '';
         }
         $pagesContent[$index]['content_structure'][$key] = $contentValue;
     }
