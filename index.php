@@ -46,13 +46,7 @@ function downloadImage($imageUrl, $savePath){
 
 
 require_once (__DIR__ . '/templates.php');
-$pages = [
-    [
-        'wp_pageid' => 43, 
-        'scrap_from' => 'https://www.illinoistreasurer.gov/Office_of_the_Treasurer/19th_Amendment_Commemorative_Coin',
-        'content_structure' => $templates['Content With Multiple Images and Videos']
-    ]
-];
+
 
 $pagesContent = [];
 $UPLOAD_TO = __DIR__ . '/scrapped-assets/';
