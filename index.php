@@ -41,6 +41,30 @@ function downloadImage($imageUrl, $savePath){
         echo 'Error downloading image';
     }
 }
+function transformArray($inputArray) {
+    $transformedArray = [];
+
+        $longestLength = 0;
+        foreach ($inputArray as $values) {
+            $length = count($values);
+            if ($length > $longestLength) {
+                $longestLength = $length;
+            }
+        }
+
+        for ($i = 0; $i < $longestLength; $i++) {
+            $newContent = [];
+            foreach ($inputArray as $key => $values) {
+                if (isset($values[$i])) {
+                    $newContent[$key] = $values[$i];
+                } else {
+                    $newContent[$key] = '';
+                }
+            }
+            $transformedArray[] = $newContent;
+        }
+    return $transformedArray;
+}
 
 
 
@@ -85,6 +109,59 @@ foreach($pages as $index => $page){
         elseif($contentStructure['type'] === 'link'){
              $contentValue = isset($contentElements[0]) ? $contentElements->item(0)->getAttribute('href') : '';
         }
+        elseif($contentStructure['type'] === 'repeater'){                
+                $repeaterArray = [];
+                
+                if(count($contentStructure['fields']) > 0 && count($contentElements) > 0){
+                    foreach($contentStructure['fields'] as $keyname => $field){
+                        $repeaterArray[$keyname] = [];
+                        $repeaterSelector =  str_replace(' ', '//', $field['selector']);
+                        $repeaterContentElements = $xpath->evaluate($repeaterSelector) ;
+                        if($field['type'] === 'html') {
+                            if(count($repeaterContentElements) > 0)
+                                foreach ($repeaterContentElements as $element) {
+                                    // $repeaterArray[$keyname][] = $doc->saveHTML($element);
+                                    $repeaterArray[$keyname][] = 'htm';
+                                }
+                        } 
+                        else if($field['type'] === 'image'){                            
+                            if(count($repeaterContentElements) > 0)
+                                foreach ($repeaterContentElements as $element) {
+                                    $imageUrl = $element->getAttribute('src') ;
+                                    if($imageUrl !== '' && $imageUrl !== '../#' && $imageUrl !== "../../#"){                   
+                                        // $repeaterArray[$keyname][]= downloadImage( $FILE_URL_PREFIX .  $imageUrl);
+                                        $repeaterArray[$keyname][]= $FILE_URL_PREFIX .  $imageUrl;
+                                        // if(!$contentValue){				   
+                                        //     $repeaterArray[$keyname][]= downloadImage(str_replace(' ', '%20', strtolower('https://illinoistreasurergovprod.blob.core.usgovcloudapi.net' .  $imageUrl)));
+                                        // }
+                                    }
+                                    else{
+                                        $repeaterArray[$keyname][] = null;
+                                    }
+                                }                           
+                        }
+                        else if($field['type'] === 'alt'){
+                            $imageAlt = isset($repeaterContentElements[0]) ? $repeaterContentElements->item(0)->getAttribute('alt') : '';                          
+                            $repeaterArray[$keyname][]= $imageAlt;
+                        }
+                        elseif($field['type'] === 'link'){
+                            $repeaterArray[$keyname][] = isset($repeaterContentElements[0]) ? $repeaterContentElements->item(0)->getAttribute('href') : '';
+                        } 
+                        elseif($field['type'] === 'text'){
+                            if(count($repeaterContentElements) > 0)
+                                foreach ($repeaterContentElements as $element) {
+                                    // $repeaterArray[$keyname][] = $doc->saveHTML($element);
+                                    $repeaterArray[$keyname][] = $element->textContent.PHP_EOL ;
+                                }
+                        }
+                        $contentValue = transformArray($repeaterArray);
+                        $index = $index + 1;
+                    }
+                }
+            }
+            elseif($contentStructure['type'] === 'function'){
+                $contentValue = $contentStructure['function']($xpath, function($path){downloadImage($path);}, $FILE_URL_PREFIX, $doc); 
+            }
         $pagesContent[$index]['content_structure'][$key] = $contentValue;
     }
 }
