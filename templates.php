@@ -44,6 +44,34 @@ $ignore = [
 'heritage-month-template',
 
 ];
+
+
+
+
+function  changeDomain ($downloadImage) {
+   return function ($matches) use($downloadImage){ 
+    // $home_url = home_url();
+    $home_url = 'https://example.com';
+    $home_parsed_url = parse_url($home_url);
+    $domain_name = $home_parsed_url['host'];
+
+    $url = $matches[1];
+        $parsedUrl = parse_url($url);
+        if (pathinfo($parsedUrl['path'], PATHINFO_EXTENSION) !== 'pdf') {
+            if(isset($parsedUrl['host']) && ($parsedUrl['host'] == 'www.illinoistreasurer.gov' || $parsedUrl['host'] == 'illinoistreasurer.gov')){
+                $url = str_replace($parsedUrl['host'], $domain_name, $url);
+            }
+        }
+        else{
+            $attachment_id = $downloadImage($url);
+            $attachment_url = wp_get_attachment_url($attachment_id);
+            if ($attachment_url) 
+               $url = $attachment_url;            
+        }
+        return 'href="' . $url . '"';
+    };
+}
+
 $templates = [
  'categorized_documents-template.php' => [
         'title' => [
@@ -54,10 +82,10 @@ $templates = [
             'selector' => ' img[@id="sections_inlineImage_0"]',
             'type' => 'image',
        ],
-       'main_content' => [
-            'selector' => ' div[@id="sections_sectionContent_0"]',
-            'type' => 'html',
-       ],
+    //    'main_content' => [
+    //         'selector' => ' div[@id="sections_sectionContent_0"]',
+    //         'type' => 'html',
+    //    ],
        'content_with_multiple_images_invest' => [
             'selector' => ' div[@class="content_left"]',
             'type' => 'function',
@@ -69,10 +97,19 @@ $templates = [
                 foreach ($childNodes as $childNode) {                  
                     if ($childNode->nodeType === XML_ELEMENT_NODE) {
                         $idAttr = $childNode->getAttribute('id');
-                        if(strpos($idAttr, 'sectionContent') !== false && $idAttr !== 'sections_sectionContent_0'){
+                        if(strpos($idAttr, 'sectionContent') !== false 
+                        // && $idAttr !== 'sections_sectionContent_0'
+                        ){
                             if(isset($content[$lastIndex]['content_with_multiple_images_invest_content']))
                                 $lastIndex = $lastIndex + 1;
+
                             $content[$lastIndex]['content_with_multiple_images_invest_content'] = $doc->saveHTML($childNode);
+                            $content[$lastIndex]['content_with_multiple_images_invest_content'] = preg_replace_callback(
+                                '/href="([^"]+)"/',
+                                changeDomain($downloadImage),
+                                $content[$lastIndex]['content_with_multiple_images_invest_content']
+                            );
+
                         }
                         if(strpos($idAttr, 'imageLink') !== false){
                             $content[$lastIndex]['content_with_multiple_images_invest_image_link'] = $childNode->getAttribute('href');                             

@@ -26,38 +26,69 @@ function fetchPage($link){
     return $pageContent;
 }
 
+function  changeDomain ($downloadImage) {
+   return function ($matches) use($downloadImage){ 
+    $home_url = home_url();
+    $home_parsed_url = parse_url($home_url);
+    $domain_name = $home_parsed_url['host'];
+
+    $url = $matches[1];
+        $parsedUrl = parse_url($url);
+        if (pathinfo($parsedUrl['path'], PATHINFO_EXTENSION) !== 'pdf') {
+            if(isset($parsedUrl['host']) && ($parsedUrl['host'] == 'www.illinoistreasurer.gov' || $parsedUrl['host'] == 'illinoistreasurer.gov')){
+                $url = str_replace($parsedUrl['host'], $domain_name, $url);
+            }
+        }
+        else{
+            $attachment_id = $downloadImage($url);
+            $attachment_url = wp_get_attachment_url($attachment_id);
+            if ($attachment_url) 
+                $url = $attachment_url;            
+        }
+        return 'href="' . $url . '"';
+    };
+}
 
 function downloadImage($imageUrl){
     try {
-        $imageData = file_get_contents($imageUrl);
-        if($imageData === false){
-            throw new Exception('Failed to download image from URL: ' . $imageUrl);
-        }        
-        $upload = wp_upload_bits(basename($imageUrl), null, $imageData);        
-        if($upload['error']) {
-            throw new Exception('Failed to upload image: ' . $upload['error']);
-        }
-
-        // Insert attachment into the media library
-        $attachment = array(
-            'post_mime_type' => $upload['type'],
-            'post_title' => basename($imageUrl),
-            'post_content' => '',
-            'post_status' => 'inherit'
-        );
-        $attachment_id = wp_insert_attachment($attachment, $upload['file']);
-        if (is_wp_error($attachment_id)) {
-            throw new Exception('Failed to insert attachment: ' . $attachment_id->get_error_message());
-        }
         
-        require_once(ABSPATH . 'wp-admin/includes/image.php');
-        // Generate attachment metadata
-        $attach_data = wp_generate_attachment_metadata($attachment_id, $upload['file']);
-        wp_update_attachment_metadata($attachment_id, $attach_data);
+        if($imageUrl !== '' && $imageUrl !== '../#' && $imageUrl !== "../../#"){          
+            $imageData = file_get_contents($imageUrl);
+            if($imageData === false){
+                $imageData = file_get_contents("https://www.illinoistreasurer.gov" . $imageUrl);
+                if($imageData === false){
+                    $imageData = file_get_contents(str_replace(' ', '%20', strtolower("https://illinoistreasurergovprod.blob.core.usgovcloudapi.net" .  $imageUrl)));
+                    if($imageData === false){
+                        throw new Exception('Failed to download image from URL: ' . $imageUrl);
+                    }
+                }
+            }        
+            $upload = wp_upload_bits(basename($imageUrl), null, $imageData);        
+            if($upload['error']) {
+                throw new Exception('Failed to upload image: ' . $upload['error']);
+            }
 
-
-        
-        return $attachment_id;
+            // Insert attachment into the media library
+            $attachment = array(
+                'post_mime_type' => $upload['type'],
+                'post_title' => basename($imageUrl),
+                'post_content' => '',
+                'post_status' => 'inherit'
+            );
+            $attachment_id = wp_insert_attachment($attachment, $upload['file']);
+            if (is_wp_error($attachment_id)) {
+                throw new Exception('Failed to insert attachment: ' . $attachment_id->get_error_message());
+            }
+            
+            require_once(ABSPATH . 'wp-admin/includes/image.php');
+            // Generate attachment metadata
+            $attach_data = wp_generate_attachment_metadata($attachment_id, $upload['file']);
+            wp_update_attachment_metadata($attachment_id, $attach_data);
+            return $attachment_id;
+        }
+        else{
+            throw new Exception('Not Valid URL' );
+        }
     } catch (Exception $e) {
         // Handle the exception, you can log it or display an error message
         echo '<br/>Error downloading image: ' . $e->getMessage() . '<br/><b>' . $imageUrl . '</b><br/><br/>';
@@ -114,26 +145,39 @@ function scrapePages($index = 0){
             else if($contentStructure['type'] === 'image'){
                 $imageUrl = isset($contentElements[0]) ? $contentElements->item(0)->getAttribute('src') : '';
                 if($imageUrl !== '' && $imageUrl !== '../#'){                   
-                   $contentValue = downloadImage( $FILE_URL_PREFIX .  $imageUrl);
-				   if(!$contentValue){				   
-	                   $contentValue = downloadImage(str_replace(' ', '%20', strtolower("https://illinoistreasurergovprod.blob.core.usgovcloudapi.net" .  $imageUrl)));
-				   }
+                   $contentValue = downloadImage(   $imageUrl);
+				   
                 }            
             }
             elseif($contentStructure['type'] === 'html') {
-                if(count($contentElements) > 0)
+                if(count($contentElements) > 0){
                     foreach ($contentElements as $element) {
                         $contentValue .= $doc->saveHTML($element);
                     }
+
+                    $contentValue =  preg_replace_callback(
+                        '/href="([^"]+)"/',
+                        changeDomain(function($path){return downloadImage($path);}),
+                        $contentValue
+                    );
+
+                }
             } 
             elseif($contentStructure['type'] === 'child') {
                 if($contentStructure['childtype'] === 'html')
                     if(count($contentElements) > 0){
                         $child = $contentElements->item($contentStructure['number']);
-                        if(count($contentElements) > 0)
+                        if(count($contentElements) > 0){
                             foreach ($child as $element) {
                                 $contentValue .= $doc->saveHTML($element);
                             }
+                            $contentValue = preg_replace_callback(
+                                                '/href="([^"]+)"/',
+                                                changeDomain(function($path){return downloadImage($path);}),
+                                                $contentValue
+                                            );
+                        }
+
                     }
             } 
             elseif($contentStructure['type'] === 'link'){
@@ -165,10 +209,7 @@ function scrapePages($index = 0){
                                 foreach ($repeaterContentElements as $element) {
                                     $imageUrl = $element->getAttribute('src') ;
                                     if($imageUrl !== '' && $imageUrl !== '../#' && $imageUrl !== "../../#"){                   
-                                        $repeaterArray[$keyname][]= downloadImage( $FILE_URL_PREFIX .  $imageUrl);
-                                        if(!$contentValue){				   
-                                            $repeaterArray[$keyname][]= downloadImage(str_replace(' ', '%20', strtolower('https://illinoistreasurergovprod.blob.core.usgovcloudapi.net' .  $imageUrl)));
-                                        }
+                                        $repeaterArray[$keyname][]= downloadImage($imageUrl);
                                     }
                                     else{
                                         $repeaterArray[$keyname][] = null;

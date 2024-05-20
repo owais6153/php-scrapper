@@ -202,13 +202,17 @@ function scrpper_on_cron() {
 		$allPages = $data[1];
         if(isset($pages[$nextIndex])){
             $page = $pages[$nextIndex];
-			if(isset($page['slug']))
-			wp_update_post(
-				array (
-					'ID'        => $page['wp_pageid'],
-					'post_name' => $page['slug']
-				)
-			);
+			if(isset($page['slug'])){
+                global $wpdb;
+                $wpdb->update(
+                    $wpdb->posts,
+                    array('post_name' => $page['slug']),
+                    array('ID' => $page['wp_pageid']),
+                    array('%s'),
+                    array('%d')
+                );
+                update_post_meta( $page['wp_pageid'], 'page_slug', $page['slug']);
+            }
             foreach($page['content_structure'] as $metaKey => $metaValue){
                 if(!is_array($metaValue))
                     update_post_meta($page['wp_pageid'], $metaKey, $metaValue);
@@ -265,3 +269,35 @@ function schedule_scrapper() {
 add_action('wp', 'schedule_scrapper');
 
 add_action('scrapper_hook', 'scrpper_on_cron');
+
+
+function update_slug_from_meta_after_save($post_id, $post, $update) {
+    // Only modify post data for pages and only on update
+    if ($post->post_type == 'page' && $update) {
+        // Ensure this is not an autosave or a revision
+        if (wp_is_post_autosave($post_id) || wp_is_post_revision($post_id)) {
+            return;
+        }
+        
+        // Get the slug from the custom meta field
+        $custom_slug = get_post_meta($post_id, 'page_slug', true);
+
+        if (!empty($custom_slug)) {
+            global $wpdb;
+
+            // Update the post_name directly in the database
+            $wpdb->update(
+                $wpdb->posts,
+                array('post_name' => $custom_slug),
+                array('ID' => $post_id),
+                array('%s'),
+                array('%d')
+            );
+
+            // Optionally clear the cache for the post
+            clean_post_cache($post_id);
+        }
+    }
+}
+
+add_action('save_post', 'update_slug_from_meta_after_save', 10, 3);

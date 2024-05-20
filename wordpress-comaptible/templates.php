@@ -68,6 +68,13 @@ $templates = [
                                 $lastAccordianIndex = $lastAccordianIndex +1;
                                                         
                                 $accordions[$lastAccordianIndex]['accordion_content'] = $doc->saveHTML($childNode);
+
+                                $accordions[$lastAccordianIndex]['accordion_content'] = preg_replace_callback(
+                                    '/href="([^"]+)"/',
+                                    changeDomain($downloadImage),
+                                    $accordions[$lastAccordianIndex]['accordion_content']
+                                );
+
                         }
                     }
                 }
@@ -117,6 +124,12 @@ $templates = [
                             if(isset($content[$lastIndex]['content_with_multiple_images_content']))
                                 $lastIndex = $lastIndex + 1;
                             $content[$lastIndex]['content_with_multiple_images_content'] = $doc->saveHTML($childNode);
+                            
+                                 $content[$lastIndex]['content_with_multiple_images_content'] = preg_replace_callback(
+                                    '/href="([^"]+)"/',
+                                    changeDomain($downloadImage),
+                                    $content[$lastIndex]['content_with_multiple_images_content']
+                                );
                         }
                         if(strpos($idAttr, 'imageLink') !== false){
                             $content[$lastIndex]['content_with_multiple_images_image_link'] = $childNode->getAttribute('href');                             
@@ -127,13 +140,8 @@ $templates = [
 								$image = '';
 								
 								if($content[$lastIndex]['content_with_multiple_images_image'] !== '' && $content[$lastIndex]['content_with_multiple_images_image'] !== '../#' && $content[$lastIndex]['content_with_multiple_images_image'] !== '../../#' ){
-									$image = $downloadImage( $FILE_URL_PREFIX . $content[$lastIndex]['content_with_multiple_images_image'] );
-									if(!$image || $image == null || $image == ''){				   
-										$image = $downloadImage(str_replace(' ', '%20', strtolower('https://illinoistreasurergovprod.blob.core.usgovcloudapi.net' . $content[$lastIndex]['content_with_multiple_images_image'] )));
-									}
-									
-									$content[$lastIndex]['content_with_multiple_images_image'] = $image;
-									
+									$image = $downloadImage( $content[$lastIndex]['content_with_multiple_images_image'] );
+                                    $content[$lastIndex]['content_with_multiple_images_image'] = $image;									
 								}							
 								else{
 									$content[$lastIndex]['content_with_multiple_images_image'] = '';
@@ -463,7 +471,11 @@ $templates = [
        
                 foreach ($contentHTML as $childNode) {                  
                     if ($childNode->nodeType === XML_ELEMENT_NODE) {
-                        $content[] = ['directories_text' => $doc->saveHTML($childNode)];
+                        $content[] = ['directories_text' => preg_replace_callback(
+                                        '/href="([^"]+)"/',
+                                        changeDomain($downloadImage),
+                                        $doc->saveHTML($childNode)
+                                    )];
                     }
                 }
 
@@ -499,6 +511,11 @@ $templates = [
                             if(isset($content[$lastIndex]['content_with_multiple_images_invest_content']))
                                 $lastIndex = $lastIndex + 1;
                             $content[$lastIndex]['content_with_multiple_images_invest_content'] = $doc->saveHTML($childNode);
+                            $content[$lastIndex]['content_with_multiple_images_invest_content'] = preg_replace_callback(
+                                        '/href="([^"]+)"/',
+                                        changeDomain($downloadImage),
+                                        $content[$lastIndex]['content_with_multiple_images_invest_content']
+                            );
                         }
                         if(strpos($idAttr, 'imageLink') !== false){
                             $content[$lastIndex]['content_with_multiple_images_invest_image_link'] = $childNode->getAttribute('href');                             
@@ -509,10 +526,8 @@ $templates = [
 								$image = '';
 								
 								if($content[$lastIndex]['content_with_multiple_images_invest_image'] !== '' && $content[$lastIndex]['content_with_multiple_images_invest_image'] !== '../#' && $content[$lastIndex]['content_with_multiple_images_invest_image'] !== '../../#' ){
-									$image = $downloadImage( $FILE_URL_PREFIX . $content[$lastIndex]['content_with_multiple_images_invest_image'] );
-									if(!$image || $image == null || $image == ''){				   
-										$image = $downloadImage(str_replace(' ', '%20', strtolower('https://illinoistreasurergovprod.blob.core.usgovcloudapi.net' . $content[$lastIndex]['content_with_multiple_images_invest_image'] )));
-									}
+									$image = $downloadImage( $content[$lastIndex]['content_with_multiple_images_invest_image'] );
+						
 									
 									$content[$lastIndex]['content_with_multiple_images_invest_image'] = $image;
 									
@@ -613,28 +628,30 @@ $templates = [
                         if($childNode->nodeName === 'div'){
                             $idAttr = $childNode->getAttribute('id');
 
-                            if(strpos($idAttr, 'sectionContent') !== false)
+                            if(strpos($idAttr, 'sectionContent') !== false){
+
                                 $c['content_sections_content'] = $doc->saveHTML($childNode);
+                                $c['content_sections_content'] = preg_replace_callback(
+                                    '/href="([^"]+)"/',
+                                    changeDomain($downloadImage),
+                                    $c['content_sections_content'] 
+                                );
+                            }
                             elseif(strpos($idAttr, 'twoImageSection') !== false){
                                 $images = $childNode->getElementsByTagName('img');
                                 foreach($images as $image){
                                     if($image->getAttribute('class') === 'ms-staticImg--desk'){
                                         if(!isset($c['content_sections_image_1'])){
                                             $c['content_sections_image_1'] = $image->getAttribute('src');	
-											$c['content_sections_image_1'] = $downloadImage( $FILE_URL_PREFIX . $c['content_sections_image_1']);
-											if(!$c['content_sections_image_1']){				   
-												$c['content_sections_image_1'] = $downloadImage(str_replace(' ', '%20', strtolower('https://illinoistreasurergovprod.blob.core.usgovcloudapi.net' . $c['content_sections_image_1'])));
-											}	
+											$c['content_sections_image_1'] = $downloadImage(  $c['content_sections_image_1']);
+		
 											
 											
                                             $c['content_sections_image_1_caption'] = $image->getAttribute('alt');
                                         }
                                         else{
 											$c['content_sections_image_2'] = $image->getAttribute('src');	
-											$c['content_sections_image_2'] = $downloadImage( $FILE_URL_PREFIX . $c['content_sections_image_2']);
-											if(!$c['content_sections_image_2']){				   
-												$c['content_sections_image_2'] = $downloadImage(str_replace(' ', '%20', strtolower('https://illinoistreasurergovprod.blob.core.usgovcloudapi.net' . $c['content_sections_image_2'])));
-											}
+											$c['content_sections_image_2'] = $downloadImage( $c['content_sections_image_2']);
                                             $c['content_sections_image_2_caption'] = $image->getAttribute('alt');
                                         }
                                     }
@@ -673,10 +690,8 @@ $templates = [
                             if(isset($image[0])){
                                 $slider[$k]['banner_image'] = $image->item(0)->getAttribute('src');
 								
-								$slider[$k]['banner_image'] = $downloadImage( $FILE_URL_PREFIX .  $slider[$k]['banner_image']);
-							   if(!$slider[$k]['banner_image']){				   
-								   $slider[$k]['banner_image'] = $downloadImage(str_replace(' ', '%20', strtolower('https://illinoistreasurergovprod.blob.core.usgovcloudapi.net' .  $slider[$k]['banner_image'])));
-							   }								
+								$slider[$k]['banner_image'] = $downloadImage(   $slider[$k]['banner_image']);
+							
                                 $slider[$k]['banner_image_link'] = '';
                                 }
                             }     
@@ -685,10 +700,8 @@ $templates = [
                             if(isset($image[0])){
                                 $slider[$k]['banner_image'] = $image->item(0)->getAttribute('src');
 								
-								$slider[$k]['banner_image'] = $downloadImage( 'https://illinoistreasurer.gov' .  $slider[$k]['banner_image']);
-							   if(!$slider[$k]['banner_image']){				   
-								   $slider[$k]['banner_image'] = $downloadImage(str_replace(' ', '%20', strtolower('https://illinoistreasurergovprod.blob.core.usgovcloudapi.net' .  $slider[$k]['banner_image'])));
-							   }	
+								$slider[$k]['banner_image'] = $downloadImage(   $slider[$k]['banner_image']);
+
                                 $slider[$k]['banner_image_link'] = $slide->getAttribute('href');
                             }
                         }                   
