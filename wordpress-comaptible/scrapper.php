@@ -31,13 +31,18 @@ function  changeDomain ($downloadImage) {
     $home_url = home_url();
     $home_parsed_url = parse_url($home_url);
     $domain_name = $home_parsed_url['host'];
-
-    $url = $matches[1];
+	   if(isset($home_parsed_url['path']))
+		   $domain_name .= $home_parsed_url['path'];
+	
+  		$url = $matches[1];
         $parsedUrl = parse_url($url);
         if (pathinfo($parsedUrl['path'], PATHINFO_EXTENSION) !== 'pdf') {
             if(isset($parsedUrl['host']) && ($parsedUrl['host'] == 'www.illinoistreasurer.gov' || $parsedUrl['host'] == 'illinoistreasurer.gov')){
                 $url = str_replace($parsedUrl['host'], $domain_name, $url);
             }
+			else if(!isset($parsedUrl['host'])){
+                $url = $domain_name . $url;
+			}
         }
         else{
             $attachment_id = $downloadImage($url);

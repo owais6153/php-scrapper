@@ -863,7 +863,7 @@ function getAllPages(){
     $args = [
         'post_type'      => 'page',   
         'posts_per_page' => -1,
-		'post__in' => [82, 97, 98, 100, 149, 4983]
+		'post__in' => [66,]
     ];
     $query = new WP_Query($args);
     $pages = [
@@ -896,6 +896,7 @@ function getAllPages(){
 				'styled_table-template.php',
 				'daily_rates-template.php',
 				'contact_form-template.php',
+				// Will Scrapped Seprtely 				
 				'categorized_documents-template.php'
 			];
 			
