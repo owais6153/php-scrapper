@@ -133,6 +133,21 @@ $templates = [
                         }
                         if(strpos($idAttr, 'imageLink') !== false){
                             $content[$lastIndex]['content_with_multiple_images_image_link'] = $childNode->getAttribute('href');                             
+                            $home_url = home_url();
+                            $home_parsed_url = parse_url($home_url);
+                            $domain_name = $home_parsed_url['host'];
+                            if(isset($home_parsed_url['path']))
+                                $domain_name .= $home_parsed_url['path'];
+                            
+                            $parsedUrl = parse_url($content[$lastIndex]['content_with_multiple_images_image_link']);
+                            if (pathinfo($parsedUrl['path'], PATHINFO_EXTENSION) !== 'pdf') {
+                                if(isset($parsedUrl['host']) && ($parsedUrl['host'] == 'www.illinoistreasurer.gov' || $parsedUrl['host'] == 'illinoistreasurer.gov')){
+                                    $content[$lastIndex]['content_with_multiple_images_image_link'] = str_replace($parsedUrl['host'], $domain_name, $content[$lastIndex]['content_with_multiple_images_image_link']);
+                                }
+                                else if(!isset($parsedUrl['host'])){
+                                    $content[$lastIndex]['content_with_multiple_images_image_link'] = $domain_name . $content[$lastIndex]['content_with_multiple_images_image_link'];
+                                }
+                            }
                             $image = $childNode->getElementsByTagName('img');
                             if(isset($image[0]) ){
                                 $content[$lastIndex]['content_with_multiple_images_image_alt'] = $image->item(0)->getAttribute('alt');
@@ -226,6 +241,23 @@ $templates = [
                                     else {
                                         $accordions[$lastAccordianGroupIndex]['categorized_documents_repeater_items'][$lastAccordianIndex]['all_links'][$li]['upload_document'] = $downloadImage(str_replace(' ', '%20', strtolower('https://illinoistreasurergovprod.blob.core.usgovcloudapi.net' . $accordions[$lastAccordianGroupIndex]['categorized_documents_repeater_items'][$lastAccordianIndex]['all_links'][$li]['categorized_documents_url']) ));
                                     	$accordions[$lastAccordianGroupIndex]['categorized_documents_repeater_items'][$lastAccordianIndex]['all_links'][$li]['categorized_documents_url'] = null;
+                                    }
+                                }
+                                else{
+                                    $home_url = home_url();
+                                    $home_parsed_url = parse_url($home_url);
+                                    $domain_name = $home_parsed_url['host'];
+                                    if(isset($home_parsed_url['path']))
+                                        $domain_name .= $home_parsed_url['path'];
+                                    
+                                    $parsedUrl = parse_url($accordions[$lastAccordianGroupIndex]['categorized_documents_repeater_items'][$lastAccordianIndex]['all_links'][$li]['categorized_documents_link_name']);
+                                    if (pathinfo($parsedUrl['path'], PATHINFO_EXTENSION) !== 'pdf') {
+                                        if(isset($parsedUrl['host']) && ($parsedUrl['host'] == 'www.illinoistreasurer.gov' || $parsedUrl['host'] == 'illinoistreasurer.gov')){
+                                            $accordions[$lastAccordianGroupIndex]['categorized_documents_repeater_items'][$lastAccordianIndex]['all_links'][$li]['categorized_documents_link_name'] = str_replace($parsedUrl['host'], $domain_name, $accordions[$lastAccordianGroupIndex]['categorized_documents_repeater_items'][$lastAccordianIndex]['all_links'][$li]['categorized_documents_link_name']);
+                                        }
+                                        else if(!isset($parsedUrl['host'])){
+                                            $accordions[$lastAccordianGroupIndex]['categorized_documents_repeater_items'][$lastAccordianIndex]['all_links'][$li]['categorized_documents_link_name'] = $domain_name . $accordions[$lastAccordianGroupIndex]['categorized_documents_repeater_items'][$lastAccordianIndex]['all_links'][$li]['categorized_documents_link_name'];
+                                        }
                                     }
                                 }
                             }
@@ -519,6 +551,24 @@ $templates = [
                         }
                         if(strpos($idAttr, 'imageLink') !== false){
                             $content[$lastIndex]['content_with_multiple_images_invest_image_link'] = $childNode->getAttribute('href');                             
+
+                            $home_url = home_url();
+                            $home_parsed_url = parse_url($home_url);
+                            $domain_name = $home_parsed_url['host'];
+                            if(isset($home_parsed_url['path']))
+                                $domain_name .= $home_parsed_url['path'];
+                            
+                            $parsedUrl = parse_url($content[$lastIndex]['content_with_multiple_images_invest_image_link']);
+                            if (pathinfo($parsedUrl['path'], PATHINFO_EXTENSION) !== 'pdf') {
+                                if(isset($parsedUrl['host']) && ($parsedUrl['host'] == 'www.illinoistreasurer.gov' || $parsedUrl['host'] == 'illinoistreasurer.gov')){
+                                    $content[$lastIndex]['content_with_multiple_images_invest_image_link'] = str_replace($parsedUrl['host'], $domain_name, $content[$lastIndex]['content_with_multiple_images_invest_image_link']);
+                                }
+                                else if(!isset($parsedUrl['host'])){
+                                    $content[$lastIndex]['content_with_multiple_images_invest_image_link'] = $domain_name . $content[$lastIndex]['content_with_multiple_images_invest_image_link'];
+                                }
+                            }
+
+                            
                             $image = $childNode->getElementsByTagName('img');
                             if(isset($image[0]) ){
                                 $content[$lastIndex]['content_with_multiple_images_invest_image_caption'] = $image->item(0)->getAttribute('alt');

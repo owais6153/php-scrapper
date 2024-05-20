@@ -187,6 +187,22 @@ function scrapePages($index = 0){
             } 
             elseif($contentStructure['type'] === 'link'){
                 $contentValue = isset($contentElements[0]) ? $contentElements->item(0)->getAttribute('href') : '';
+
+                $home_url = home_url();
+                $home_parsed_url = parse_url($home_url);
+                $domain_name = $home_parsed_url['host'];
+                if(isset($home_parsed_url['path']))
+                    $domain_name .= $home_parsed_url['path'];
+                
+                $parsedUrl = parse_url($contentValue);
+                if (pathinfo($parsedUrl['path'], PATHINFO_EXTENSION) !== 'pdf') {
+                    if(isset($parsedUrl['host']) && ($parsedUrl['host'] == 'www.illinoistreasurer.gov' || $parsedUrl['host'] == 'illinoistreasurer.gov')){
+                        $contentValue = str_replace($parsedUrl['host'], $domain_name, $contentValue);
+                    }
+                    else if(!isset($parsedUrl['host'])){
+                        $contentValue = $domain_name . $contentValue;
+                    }
+                }
             }
 			elseif($contentStructure['type'] === 'iframe'){
                 $contentValue = isset($contentElements[0]) ? $contentElements->item(0)->getAttribute('src') : '';
