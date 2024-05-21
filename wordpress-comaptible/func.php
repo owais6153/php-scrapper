@@ -301,3 +301,48 @@ function update_slug_from_meta_after_save($post_id, $post, $update) {
 }
 
 add_action('save_post', 'update_slug_from_meta_after_save', 10, 3);
+
+
+
+
+
+
+remove_filter( 'sanitize_title', 'sanitize_title_with_dashes' );
+add_filter( 'sanitize_title', 'wpse5029_sanitize_title_with_dashes' );
+
+
+function wpse5029_sanitize_title_with_dashes($title) {
+    $title = strip_tags($title);
+    
+    // Preserve escaped octets.
+    $title = preg_replace('|%([a-fA-F0-9][a-fA-F0-9])|', '---$1---', $title);
+    
+    // Remove percent signs that are not part of an octet.
+    $title = str_replace('%', '', $title);
+    
+    // Restore octets.
+    $title = preg_replace('|---([a-fA-F0-9][a-fA-F0-9])---|', '%$1', $title);
+
+    $title = remove_accents($title);
+    
+    if (seems_utf8($title)) {
+        $title = utf8_uri_encode($title, 200);
+    }
+
+    // Remove HTML entities.
+    $title = preg_replace('/&.+?;/', '', $title);
+
+    // Allow specific characters: , . ( ) and underscore _
+    $title = preg_replace('/[^%a-zA-Z0-9 _,\.\(\)-]/', '', $title);
+    
+    // Replace spaces with hyphens.
+    $title = preg_replace('/\s+/', '-', $title);
+    
+    // Collapse multiple hyphens into one.
+    $title = preg_replace('|-+|', '-', $title);
+    
+    // Trim leading and trailing hyphens.
+    $title = trim($title, '-');
+
+    return $title;
+}
