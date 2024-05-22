@@ -203,7 +203,7 @@ function scrpper_on_cron() {
         if(isset($pages[$nextIndex])){
             $page = $pages[$nextIndex];
 			if(isset($page['slug'])){
-				$modified_string = str_replace(["'", "(", ")"], "", $page['slug']);
+				$modified_string = str_replace(["'", "(", ")", ","], "", $page['slug']);
                 global $wpdb;
                 $wpdb->update(
                     $wpdb->posts,
