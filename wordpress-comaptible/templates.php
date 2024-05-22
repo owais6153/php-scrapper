@@ -913,7 +913,7 @@ function getAllPages(){
     $args = [
         'post_type'      => 'page',   
         'posts_per_page' => -1,
-		'post__in' => [66,]
+// 		'post__in' => [1945,]
     ];
     $query = new WP_Query($args);
     $pages = [
@@ -939,26 +939,32 @@ function getAllPages(){
 				// Problems				
 				'archived_documents-template.php',
 				'content_with_images_documents-template.php',
-				'College_Savings-template.php',
+// 				'College_Savings-template.php',
 				'historical_daily_rates-template.php',
 				'media_gallery-template.php',
 				'heritage-month-template.php',
 				'styled_table-template.php',
-				'daily_rates-template.php',
+// 				'daily_rates-template.php',
 				'contact_form-template.php',
+				'directories-template.php',
 				// Will Scrapped Seprtely 				
 				'categorized_documents-template.php'
 			];
 			
-			$tm = ['content_with_multiple_images_invest-template.php'];
+			$tm = [
+// 				'content_with_multiple_images_invest-template.php'
+// 				'College_Savings-template.php',
+// 				
+				'categorized_documents-template.php'
+			];
 			
             $query->the_post();
             $scappe_from = get_post_meta( get_the_ID(), 'scrapper_field', TRUE );
             $t = get_the_title();
             $template_file = get_post_meta( get_the_ID(), '_wp_page_template', TRUE );
 // 			if($template_file === 'The_Illinois_Funds-template.php'){
-            if(!in_array($template_file, $ignore)){
-//             if(in_array($template_file, $tm)){
+//             if(!in_array($template_file, $ignore)){
+            if(in_array($template_file, $tm)){
 			if( $scappe_from !== false &&  $scappe_from !== null &&  $scappe_from !== '' ){
                 if($template_file && $template_file !== 'default' ){
                     if(!isset($templates[$template_file])){

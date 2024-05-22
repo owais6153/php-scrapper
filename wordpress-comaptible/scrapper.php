@@ -39,9 +39,10 @@ function  changeDomain ($downloadImage) {
         if (pathinfo($parsedUrl['path'], PATHINFO_EXTENSION) !== 'pdf') {
             if(isset($parsedUrl['host']) && ($parsedUrl['host'] == 'www.illinoistreasurer.gov' || $parsedUrl['host'] == 'illinoistreasurer.gov')){
                 $url = str_replace($parsedUrl['host'], $domain_name, $url);
+				$url = str_replace(["'", "(", ")"], "", $url);
             }
 			else if(!isset($parsedUrl['host'])){
-                $url = $domain_name . $url;
+                $url = str_replace(["'", "(", ")"], "", 'https://' . $domain_name . $url) ;
 			}
         }
         else{

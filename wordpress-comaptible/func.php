@@ -203,15 +203,16 @@ function scrpper_on_cron() {
         if(isset($pages[$nextIndex])){
             $page = $pages[$nextIndex];
 			if(isset($page['slug'])){
+				$modified_string = str_replace(["'", "(", ")"], "", $page['slug']);
                 global $wpdb;
                 $wpdb->update(
                     $wpdb->posts,
-                    array('post_name' => $page['slug']),
+                    array('post_name' => $modified_string),
                     array('ID' => $page['wp_pageid']),
                     array('%s'),
                     array('%d')
                 );
-                update_post_meta( $page['wp_pageid'], 'page_slug', $page['slug']);
+                update_post_meta( $page['wp_pageid'], 'page_slug', $modified_string);
             }
             foreach($page['content_structure'] as $metaKey => $metaValue){
                 if(!is_array($metaValue))
