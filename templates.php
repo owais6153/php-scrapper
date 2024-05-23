@@ -44,14 +44,15 @@ $ignore = [
 'heritage-month-template',
 
 ];
-
+function  home_url () {
+    return 'https://example.com';
+}
 
 
 
 function  changeDomain ($downloadImage) {
    return function ($matches) use($downloadImage){ 
-    // $home_url = home_url();
-    $home_url = 'https://example.com';
+    $home_url = home_url();
     $home_parsed_url = parse_url($home_url);
     $domain_name = $home_parsed_url['host'];
 
@@ -63,10 +64,10 @@ function  changeDomain ($downloadImage) {
             }
         }
         else{
-            $attachment_id = $downloadImage($url);
-            $attachment_url = wp_get_attachment_url($attachment_id);
-            if ($attachment_url) 
-               $url = $attachment_url;            
+            // $attachment_id = $downloadImage($url);
+            // $attachment_url = wp_get_attachment_url($attachment_id);
+            // if ($attachment_url) 
+            //    $url = $attachment_url;            
         }
         return 'href="' . $url . '"';
     };
@@ -78,14 +79,6 @@ $templates = [
             'selector' => ' div[@class="page_title2"] div[@class="title"] h1',
             'type' => 'text',
         ],
-       'image_with_content' => [
-            'selector' => ' img[@id="sections_inlineImage_0"]',
-            'type' => 'image',
-       ],
-    //    'main_content' => [
-    //         'selector' => ' div[@id="sections_sectionContent_0"]',
-    //         'type' => 'html',
-    //    ],
        'content_with_multiple_images_invest' => [
             'selector' => ' div[@class="content_left"]',
             'type' => 'function',
@@ -97,22 +90,42 @@ $templates = [
                 foreach ($childNodes as $childNode) {                  
                     if ($childNode->nodeType === XML_ELEMENT_NODE) {
                         $idAttr = $childNode->getAttribute('id');
-                        if(strpos($idAttr, 'sectionContent') !== false 
-                        // && $idAttr !== 'sections_sectionContent_0'
-                        ){
-                            if(isset($content[$lastIndex]['content_with_multiple_images_invest_content']))
+                        if(strpos($idAttr, 'sectionContent') !== false){
+                            if(isset($content[$lastIndex]['main_content']))
                                 $lastIndex = $lastIndex + 1;
-
-                            $content[$lastIndex]['content_with_multiple_images_invest_content'] = $doc->saveHTML($childNode);
-                            $content[$lastIndex]['content_with_multiple_images_invest_content'] = preg_replace_callback(
+                            $content[$lastIndex]['main_content'] = $doc->saveHTML($childNode);
+                            $content[$lastIndex]['main_content'] = preg_replace_callback(
                                 '/href="([^"]+)"/',
                                 changeDomain($downloadImage),
-                                $content[$lastIndex]['content_with_multiple_images_invest_content']
+                                $content[$lastIndex]['main_content']
                             );
-
+                        }
+                        if(strpos($idAttr, 'inlineImage') !== false){
+                            $content[$lastIndex]['image_with_content'] = $childNode->getAttribute('src'); 
+                            $image = $downloadImage( $content[$lastIndex]['image_with_content'] );
+								// $image = ( $content[$lastIndex]['image_with_content'] );
+                                $content[$lastIndex]['image_with_content'] = $image;
                         }
                         if(strpos($idAttr, 'imageLink') !== false){
                             $content[$lastIndex]['content_with_multiple_images_invest_image_link'] = $childNode->getAttribute('href');                             
+
+                            $home_url = home_url();
+                            $home_parsed_url = parse_url($home_url);
+                            $domain_name = $home_parsed_url['host'];
+                            if(isset($home_parsed_url['path']))
+                                $domain_name .= $home_parsed_url['path'];
+                            
+                            $parsedUrl = parse_url($content[$lastIndex]['content_with_multiple_images_invest_image_link']);
+                            if (pathinfo($parsedUrl['path'], PATHINFO_EXTENSION) !== 'pdf') {
+                                if(isset($parsedUrl['host']) && ($parsedUrl['host'] == 'www.illinoistreasurer.gov' || $parsedUrl['host'] == 'illinoistreasurer.gov')){
+                                    $content[$lastIndex]['content_with_multiple_images_invest_image_link'] = str_replace($parsedUrl['host'], $domain_name, $content[$lastIndex]['content_with_multiple_images_invest_image_link']);
+                                }
+                                else if(!isset($parsedUrl['host'])){
+                                    $content[$lastIndex]['content_with_multiple_images_invest_image_link'] = $domain_name . $content[$lastIndex]['content_with_multiple_images_invest_image_link'];
+                                }
+                            }
+
+                            
                             $image = $childNode->getElementsByTagName('img');
                             if(isset($image[0]) ){
                                 $content[$lastIndex]['content_with_multiple_images_invest_image_caption'] = $image->item(0)->getAttribute('alt');
@@ -120,10 +133,9 @@ $templates = [
 								$image = '';
 								
 								if($content[$lastIndex]['content_with_multiple_images_invest_image'] !== '' && $content[$lastIndex]['content_with_multiple_images_invest_image'] !== '../#' && $content[$lastIndex]['content_with_multiple_images_invest_image'] !== '../../#' ){
-									$image = ( $FILE_URL_PREFIX . $content[$lastIndex]['content_with_multiple_images_invest_image'] );
-									if(!$image || $image == null || $image == ''){				   
-										$image = (str_replace(' ', '%20', strtolower('https://illinoistreasurergovprod.blob.core.usgovcloudapi.net' . $content[$lastIndex]['content_with_multiple_images_invest_image'] )));
-									}
+									// $image = $downloadImage( $content[$lastIndex]['content_with_multiple_images_invest_image'] );
+									$image = ( $content[$lastIndex]['content_with_multiple_images_invest_image'] );
+						
 									
 									$content[$lastIndex]['content_with_multiple_images_invest_image'] = $image;
 									
@@ -151,7 +163,7 @@ $templates = [
 $pages = [
     [
         'wp_pageid' => 43, 
-        'scrap_from' => 'https://illinoistreasurer.gov/Invest_in_Illinois/Ag_Invest#',
+        'scrap_from' => 'https://illinoistreasurer.gov/Invest_in_Illinois/Community_Invest',
         'content_structure' => $templates['categorized_documents-template.php']
     ]
 ];

@@ -520,14 +520,7 @@ $templates = [
             'selector' => ' div[@class="page_title2"] div[@class="title"] h1',
             'type' => 'text',
         ],
-       'image_with_content' => [
-            'selector' => ' img[@id="sections_inlineImage_0"]',
-            'type' => 'image',
-       ],
-       'main_content' => [
-            'selector' => ' div[@id="sections_sectionContent_0"]',
-            'type' => 'html',
-       ],
+
        'content_with_multiple_images_invest' => [
             'selector' => ' div[@class="content_left"]',
             'type' => 'function',
@@ -539,15 +532,21 @@ $templates = [
                 foreach ($childNodes as $childNode) {                  
                     if ($childNode->nodeType === XML_ELEMENT_NODE) {
                         $idAttr = $childNode->getAttribute('id');
-                        if(strpos($idAttr, 'sectionContent') !== false && $idAttr !== 'sections_sectionContent_0'){
-                            if(isset($content[$lastIndex]['content_with_multiple_images_invest_content']))
+                        if(strpos($idAttr, 'sectionContent') !== false){
+                            if(isset($content[$lastIndex]['main_content']))
                                 $lastIndex = $lastIndex + 1;
-                            $content[$lastIndex]['content_with_multiple_images_invest_content'] = $doc->saveHTML($childNode);
-                            $content[$lastIndex]['content_with_multiple_images_invest_content'] = preg_replace_callback(
-                                        '/href="([^"]+)"/',
-                                        changeDomain($downloadImage),
-                                        $content[$lastIndex]['content_with_multiple_images_invest_content']
+                            $content[$lastIndex]['main_content'] = $doc->saveHTML($childNode);
+                            $content[$lastIndex]['main_content'] = preg_replace_callback(
+                                '/href="([^"]+)"/',
+                                changeDomain($downloadImage),
+                                $content[$lastIndex]['main_content']
                             );
+                        }
+                        if(strpos($idAttr, 'inlineImage') !== false){
+                            $content[$lastIndex]['image_with_content'] = $childNode->getAttribute('src'); 
+                            $image = $downloadImage( $content[$lastIndex]['image_with_content'] );
+								// $image = ( $content[$lastIndex]['image_with_content'] );
+                                $content[$lastIndex]['image_with_content'] = $image;
                         }
                         if(strpos($idAttr, 'imageLink') !== false){
                             $content[$lastIndex]['content_with_multiple_images_invest_image_link'] = $childNode->getAttribute('href');                             
@@ -577,6 +576,7 @@ $templates = [
 								
 								if($content[$lastIndex]['content_with_multiple_images_invest_image'] !== '' && $content[$lastIndex]['content_with_multiple_images_invest_image'] !== '../#' && $content[$lastIndex]['content_with_multiple_images_invest_image'] !== '../../#' ){
 									$image = $downloadImage( $content[$lastIndex]['content_with_multiple_images_invest_image'] );
+									// $image = ( $content[$lastIndex]['content_with_multiple_images_invest_image'] );
 						
 									
 									$content[$lastIndex]['content_with_multiple_images_invest_image'] = $image;
@@ -937,7 +937,7 @@ function getAllPages(){
 				'home-template.php',
 
 				// Problems				
-				'archived_documents-template.php',
+// 				'archived_documents-template.php',
 				'content_with_images_documents-template.php',
 // 				'College_Savings-template.php',
 				'historical_daily_rates-template.php',
@@ -952,10 +952,11 @@ function getAllPages(){
 			];
 			
 			$tm = [
-// 				'content_with_multiple_images_invest-template.php'
+				'content_with_multiple_images_invest-template.php'
 // 				'College_Savings-template.php',
 // 				
-				'categorized_documents-template.php'
+// 				'categorized_documents-template.php'
+// 				'archived_documents-template.php',
 			];
 			
             $query->the_post();
