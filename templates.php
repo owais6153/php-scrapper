@@ -74,96 +74,127 @@ function  changeDomain ($downloadImage) {
 }
 
 $templates = [
- 'categorized_documents-template.php' => [
+    'College_Savings-template.php' => [
         'title' => [
             'selector' => ' div[@class="page_title2"] div[@class="title"] h1',
             'type' => 'text',
         ],
-       'content_with_multiple_images_invest' => [
+        'college_saving_banner_image' => [
+            'selector' => ' img[@class="csBannerImg"]',
+            'type' => 'image'
+        ],
+        'college_saving_banner_image_link' => [
+            'selector' => ' a[@class="csBannerImg"]',
+            'type' => 'link'
+        ],
+        'college_saving_banner_image_caption' => [
             'selector' => ' div[@class="content_left"]',
             'type' => 'function',
             'function' => function ($xpath, $downloadImage, $FILE_URL_PREFIX, $doc ) {
-                $content = [];
-                $lastIndex = 0;
-                $contentHTML = $xpath->query('//div[@class="content_left"]//div[@class="col-md-12"]')->item(0);
+                $content = '';
+                $contentHTML = $xpath->query('//div[@class="content_left"]')->item(0);
+
                 $childNodes = $contentHTML->childNodes;
                 foreach ($childNodes as $childNode) {                  
                     if ($childNode->nodeType === XML_ELEMENT_NODE) {
-                        $idAttr = $childNode->getAttribute('id');
-                        if(strpos($idAttr, 'sectionContent') !== false){
-                            if(isset($content[$lastIndex]['main_content']))
-                                $lastIndex = $lastIndex + 1;
-                            $content[$lastIndex]['main_content'] = $doc->saveHTML($childNode);
-                            $content[$lastIndex]['main_content'] = preg_replace_callback(
+                      $className = $childNode->getAttribute('class');
+                      if(strpos($className, 'quoteContainer') !== false)
+                          {
+                             $content = $doc->saveHTML($childNode);
+                            $content= preg_replace_callback(
                                 '/href="([^"]+)"/',
                                 changeDomain($downloadImage),
-                                $content[$lastIndex]['main_content']
+                                $content
                             );
-                        }
-                        if(strpos($idAttr, 'inlineImage') !== false){
-                            $content[$lastIndex]['image_with_content'] = $childNode->getAttribute('src'); 
-                            $image = $downloadImage( $content[$lastIndex]['image_with_content'] );
-								// $image = ( $content[$lastIndex]['image_with_content'] );
-                                $content[$lastIndex]['image_with_content'] = $image;
-                        }
-                        if(strpos($idAttr, 'imageLink') !== false){
-                            $content[$lastIndex]['content_with_multiple_images_invest_image_link'] = $childNode->getAttribute('href');                             
-
-                            $home_url = home_url();
-                            $home_parsed_url = parse_url($home_url);
-                            $domain_name = $home_parsed_url['host'];
-                            if(isset($home_parsed_url['path']))
-                                $domain_name .= $home_parsed_url['path'];
-                            
-                            $parsedUrl = parse_url($content[$lastIndex]['content_with_multiple_images_invest_image_link']);
-                            if (pathinfo($parsedUrl['path'], PATHINFO_EXTENSION) !== 'pdf') {
-                                if(isset($parsedUrl['host']) && ($parsedUrl['host'] == 'www.illinoistreasurer.gov' || $parsedUrl['host'] == 'illinoistreasurer.gov')){
-                                    $content[$lastIndex]['content_with_multiple_images_invest_image_link'] = str_replace($parsedUrl['host'], $domain_name, $content[$lastIndex]['content_with_multiple_images_invest_image_link']);
-                                }
-                                else if(!isset($parsedUrl['host'])){
-                                    $content[$lastIndex]['content_with_multiple_images_invest_image_link'] = $domain_name . $content[$lastIndex]['content_with_multiple_images_invest_image_link'];
-                                }
-                            }
-
-                            
-                            $image = $childNode->getElementsByTagName('img');
-                            if(isset($image[0]) ){
-                                $content[$lastIndex]['content_with_multiple_images_invest_image_caption'] = $image->item(0)->getAttribute('alt');
-                                $content[$lastIndex]['content_with_multiple_images_invest_image'] = $image->item(0)->getAttribute('src');
-								$image = '';
-								
-								if($content[$lastIndex]['content_with_multiple_images_invest_image'] !== '' && $content[$lastIndex]['content_with_multiple_images_invest_image'] !== '../#' && $content[$lastIndex]['content_with_multiple_images_invest_image'] !== '../../#' ){
-									// $image = $downloadImage( $content[$lastIndex]['content_with_multiple_images_invest_image'] );
-									$image = ( $content[$lastIndex]['content_with_multiple_images_invest_image'] );
-						
-									
-									$content[$lastIndex]['content_with_multiple_images_invest_image'] = $image;
-									
-								}							
-								else{
-									$content[$lastIndex]['content_with_multiple_images_invest_image'] = '';
-									$content[$lastIndex]['content_with_multiple_images_invest_image_caption'] = '';
-								}	
-                            }
-							else{
-								$content[$lastIndex]['content_with_multiple_images_invest_image'] = '';
-								$content[$lastIndex]['content_with_multiple_images_invest_image_caption'] = '';
-							}
-                        }
-
+                          }
                     }
                 }
 
                 return $content;
             }
-       ]
-    ],       
+        ],
+        'college_saving_banner_image_content_1' => [
+            'selector' => ' div[@class="quoteContainer"]',
+            'type' => 'html'
+        ],
+        'illinois_529_programs_image_1' => [
+            'selector' => ' img[@class="csProjectionGraph"]',
+            'type' => 'image'
+        ],
+        'illinois_529_programs_heading_1' => [
+            'selector' => ' div[@class="textNextToLogo"]',
+            'type' => 'html'
+        ],
+        'illinois_529_programs_paragraph_1' => [
+            'selector' => ' div[@class="textNextToLogo"]',
+            'type' => 'html'
+        ],
+        'illinois_529_programs_image_2' => [
+            'selector' => ' img[@class="csProjectionGraph"]',
+            'type' => 'image'
+        ],
+        'illinois_529_programs_heading_2' => [
+            'selector' => ' div[@class="textNextToLogo"]',
+            'type' => 'html'
+        ],
+        'illinois_529_programs_paragraph_2' => [
+            'selector' => ' div[@class="textNextToLogo"]',
+            'type' => 'html'
+        ],
+        'illinois_529_programs_image_3' => [
+            'selector' => ' img[@class="csProjectionGraph"]',
+            'type' => 'image'
+        ],
+        'illinois_529_programs_heading_3' => [
+            'selector' => ' div[@class="textNextToLogo"]',
+            'type' => 'html'
+        ],
+        'illinois_529_programs_paragraph_3' => [
+            'selector' => ' div[@class="textNextToLogo"]',
+            'type' => 'html'
+        ],
+        'illinois_549_programs_content_2' => [
+            'selector' => ' div[@class="textNextToLogo"]',
+            'type' => 'html'
+        ],
+        'illinois_549_programs_content_2' => [
+            'selector' => ' div[@class="content_left"]',
+            'type' => 'child',
+            'number' => 4,
+            'childtype' => 'html'
+        ],
+        'college_savings_image_2' => [
+            'selector' => ' img[@class="textAndImage"] img',
+            'type' => 'image'
+        ],
+        'college_savings_image_2_caption' => [
+            'selector' => ' div[@class="twoImageTextHeader"]',
+            'type' => 'html'
+        ],
+        'college_savings_image_2_caption' => [
+            'selector' => ' div[@class="twoImageTextBody"]',
+            'type' => 'html'
+        ],
+        'college_savings_image_3' => [
+            'selector' => ' img[@class="smallImage"]',
+            'type' => 'image'
+        ],
+        'college_savings_image_3_caption' => [
+            'selector' => ' div[@class="twoImageTextHeader"]',
+            'type' => 'html'
+        ],
+        'college_savings_image_3_caption' => [
+            'selector' => ' div[@class="twoImageTextBody"]',
+            'type' => 'html'
+        ],
+        
+    ],      
 ];
 
 $pages = [
     [
         'wp_pageid' => 43, 
         'scrap_from' => 'https://www.illinoistreasurer.gov/Individuals/College_Savings',
-        'content_structure' => $templates['categorized_documents-template.php']
+        'content_structure' => $templates['College_Savings-template.php']
     ]
 ];

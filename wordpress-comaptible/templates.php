@@ -515,7 +515,7 @@ $templates = [
             }
         ]
     ],   
-        'content_with_multiple_images_invest-template.php' => [
+    'content_with_multiple_images_invest-template.php' => [
         'title' => [
             'selector' => ' div[@class="page_title2"] div[@class="title"] h1',
             'type' => 'text',
@@ -953,11 +953,11 @@ function getAllPages(){
 // 				'College_Savings-template.php',
 				'historical_daily_rates-template.php',
 				'media_gallery-template.php',
-				'heritage-month-template.php',
+// 				'heritage-month-template.php',
 				'styled_table-template.php',
 // 				'daily_rates-template.php',
 				'contact_form-template.php',
-				'directories-template.php',
+// 				'directories-template.php',
 				// Will Scrapped Seprtely 				
 				'categorized_documents-template.php'
 			];
@@ -976,8 +976,8 @@ function getAllPages(){
             $t = get_the_title();
             $template_file = get_post_meta( get_the_ID(), '_wp_page_template', TRUE );
 // 			if($template_file === 'The_Illinois_Funds-template.php'){
-//             if(!in_array($template_file, $ignore)){
-            if(in_array($template_file, $tm)){
+            if(!in_array($template_file, $ignore)){
+//             if(in_array($template_file, $tm)){
 			if( $scappe_from !== false &&  $scappe_from !== null &&  $scappe_from !== '' ){
                 if($template_file && $template_file !== 'default' ){
                     if(!isset($templates[$template_file])){

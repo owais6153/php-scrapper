@@ -42,8 +42,12 @@ function  changeDomain ($downloadImage) {
 				$url = str_replace(["'", "(", ")"], "", $url);
             }
 			else if(!isset($parsedUrl['host'])){
-                $url = str_replace(["'", "(", ")"], "", 'https://' . $domain_name . $url) ;
+                $url = str_replace(["'", "(", ")"], "",  $domain_name . $url) ;
 			}
+
+            if(strpos($url, 'https://') !== false && strpos($url, 'http://') !== false){
+                $url = 'https://' . $url;
+            }
         }
         else{
             $attachment_id = $downloadImage($url);
