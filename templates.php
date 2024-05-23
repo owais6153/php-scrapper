@@ -163,7 +163,7 @@ $templates = [
 $pages = [
     [
         'wp_pageid' => 43, 
-        'scrap_from' => 'https://illinoistreasurer.gov/Invest_in_Illinois/Community_Invest',
+        'scrap_from' => 'https://www.illinoistreasurer.gov/Individuals/College_Savings',
         'content_structure' => $templates['categorized_documents-template.php']
     ]
 ];

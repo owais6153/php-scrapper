@@ -39,7 +39,7 @@ function  changeDomain ($downloadImage) {
         if (pathinfo($parsedUrl['path'], PATHINFO_EXTENSION) !== 'pdf') {
             if(isset($parsedUrl['host']) && ($parsedUrl['host'] == 'www.illinoistreasurer.gov' || $parsedUrl['host'] == 'illinoistreasurer.gov')){
                 $url = str_replace($parsedUrl['host'], $domain_name, $url);
-				$url = str_replace(["'", "(", ")", ","], "", $url);
+				$url = str_replace(["'", "(", ")"], "", $url);
             }
 			else if(!isset($parsedUrl['host'])){
                 $url = str_replace(["'", "(", ")"], "", 'https://' . $domain_name . $url) ;
@@ -295,16 +295,16 @@ add_action('init', function (){
 			$url = get_field('page_scrape_from', get_the_ID());
 			$pageName = basename(parse_url($url, PHP_URL_PATH));
 			
+			echo 'Page Link: <a href="https://thedesignocracy.tech/illinoistreasurer/wp-admin/post.php?post='.get_field('page_id', get_the_ID()).'&action=edit">'.get_permalink(get_field('page_id', get_the_ID())).'</a><br/>';
 			
-			
-         	echo '<div>
-				Title: '.get_field('page_title', get_the_ID()).'<br/>
-				Slug: '.$pageName.'<br/>			
-				Page ID: '.get_field('page_id', get_the_ID()).'<br/>
-				Page Link: <a href="'.get_permalink(get_field('page_id', get_the_ID())).'">'.get_permalink(get_the_ID()).'</a><br/>
-				Refernce: <a href="'.get_field('page_scrape_from', get_the_ID()).'">'.get_field('page_scrape_from', get_the_ID()).'</a><br/>
+//          	echo '<div>
+// 				Title: '.get_field('page_title', get_the_ID()).'<br/>
+// 				Slug: '.$pageName.'<br/>			
+// 				Page ID: '.get_field('page_id', get_the_ID()).'<br/>
+// 				Page Link: <a href="'.get_permalink(get_field('page_id', get_the_ID())).'">'.get_permalink(get_the_ID()).'</a><br/>
+// 				Refernce: <a href="'.get_field('page_scrape_from', get_the_ID()).'">'.get_field('page_scrape_from', get_the_ID()).'</a><br/>
 				
-			</div><hr/>';
+// 			</div><hr/>';
             wp_reset_postdata();
         }
 		
