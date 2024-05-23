@@ -878,7 +878,7 @@ $templates = [
             'type' => 'text',
         ],
 		'content_above_table' => [
-			'selector' => ' div[@id="pageContent"]',
+			'selector' => ' div[@class="content_left"]',
 			'type' => 'html',
 		],
 // 		'content_below_table' => [
@@ -963,11 +963,12 @@ function getAllPages(){
 			];
 			
 			$tm = [
-				'content_with_multiple_images_invest-template.php'
+// 				'content_with_multiple_images_invest-template.php'
 // 				'College_Savings-template.php',
 // 				
 // 				'categorized_documents-template.php'
 // 				'archived_documents-template.php',
+				'daily_rates-template.php'
 			];
 			
             $query->the_post();
