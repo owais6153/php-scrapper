@@ -543,12 +543,23 @@ $templates = [
                             );
                         }
                         if(strpos($idAttr, 'inlineImage') !== false){
+							
+                            if(isset($content[$lastIndex]['image_with_content']))
+                                $lastIndex = $lastIndex + 1;
+                            
+                            if(isset($content[$lastIndex]['content_with_multiple_images_invest_image_link']))
+                                $lastIndex = $lastIndex + 1;
+							
                             $content[$lastIndex]['image_with_content'] = $childNode->getAttribute('src'); 
                             $image = $downloadImage( $content[$lastIndex]['image_with_content'] );
 								// $image = ( $content[$lastIndex]['image_with_content'] );
                                 $content[$lastIndex]['image_with_content'] = $image;
                         }
                         if(strpos($idAttr, 'imageLink') !== false){
+							
+                            if(isset($content[$lastIndex]['content_with_multiple_images_invest_image_link']))
+                                $lastIndex = $lastIndex + 1;
+							
                             $content[$lastIndex]['content_with_multiple_images_invest_image_link'] = $childNode->getAttribute('href');                             
 
                             $home_url = home_url();
