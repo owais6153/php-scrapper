@@ -11,6 +11,41 @@ else
     echo '</pre>';
 }
 
+function  changeDomain ($downloadImage) {
+   return function ($matches) use($downloadImage){ 
+    $home_url = home_url();
+    $home_parsed_url = parse_url($home_url);
+    $domain_name = $home_parsed_url['host'];
+	   if(isset($home_parsed_url['path']))
+		   $domain_name .= $home_parsed_url['path'];
+	
+  		$url = $matches[1];
+        $parsedUrl = parse_url($url);
+        if (pathinfo($parsedUrl['path'], PATHINFO_EXTENSION) !== 'pdf') {
+            if(isset($parsedUrl['host']) && ($parsedUrl['host'] == 'www.illinoistreasurer.gov' || $parsedUrl['host'] == 'illinoistreasurer.gov')){
+                $url = str_replace($parsedUrl['host'], $domain_name, $url);
+				$url = str_replace(["'", "(", ")"], "", $url);
+            }
+			else if(!isset($parsedUrl['host'])){
+                if(strpos($url, 'mailto:') === false && strpos($url, 'tel:') === false && strpos($url, 'javascript') === false)
+                   $url = str_replace(["'", "(", ")"], "",  $domain_name . $url) ;
+			}
+
+            if(strpos($url, 'https://') === false && strpos($url, 'http://') === false){
+                if(strpos($url, 'mailto:') === false && strpos($url, 'tel:') === false && strpos($url, 'javascript') === false)
+                    $url = 'https://' . $url;
+            }
+        }
+        else{
+            // $attachment_id = $downloadImage($url);
+            // $attachment_url = wp_get_attachment_url($attachment_id);
+            // if ($attachment_url) 
+            //     $url = $attachment_url;            
+        }
+        return 'href="' . $url . '"';
+    };
+}
+
 
 function fetchPage($link){
     $pageContent =false;
@@ -101,10 +136,18 @@ foreach($pages as $index => $page){
             }            
         }
         elseif($contentStructure['type'] === 'html') {
-            if(count($contentElements) > 0)
+            if(count($contentElements) > 0){
                 foreach ($contentElements as $element) {
                     $contentValue .= $doc->saveHTML($element);
                 }
+
+                $contentValue =  preg_replace_callback(
+                    '/href="([^"]+)"/',
+                    changeDomain(function($path){return downloadImage($path);}),
+                    $contentValue
+                );
+
+            }
         } 
         elseif($contentStructure['type'] === 'link'){
              $contentValue = isset($contentElements[0]) ? $contentElements->item(0)->getAttribute('href') : '';

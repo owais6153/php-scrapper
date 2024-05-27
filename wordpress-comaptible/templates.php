@@ -145,9 +145,15 @@ $templates = [
                                     $content[$lastIndex]['content_with_multiple_images_image_link'] = str_replace($parsedUrl['host'], $domain_name, $content[$lastIndex]['content_with_multiple_images_image_link']);
                                 }
                                 else if(!isset($parsedUrl['host'])){
-                                    $content[$lastIndex]['content_with_multiple_images_image_link'] = $domain_name . $content[$lastIndex]['content_with_multiple_images_image_link'];
+                                    if(strpos($content[$lastIndex]['content_with_multiple_images_image_link'], 'mailto:') === false && strpos($content[$lastIndex]['content_with_multiple_images_image_link'], 'tel:') === false && strpos($content[$lastIndex]['content_with_multiple_images_image_link'], 'javascript') === false)
+                                        $content[$lastIndex]['content_with_multiple_images_image_link'] = $domain_name . $content[$lastIndex]['content_with_multiple_images_image_link'];
                                 }
                             }
+                            if(strpos($content[$lastIndex]['content_with_multiple_images_image_link'], 'https://') === false && strpos($content[$lastIndex]['content_with_multiple_images_image_link'], 'http://') === false){
+                                if(strpos($content[$lastIndex]['content_with_multiple_images_image_link'], 'mailto:') === false && strpos($content[$lastIndex]['content_with_multiple_images_image_link'], 'tel:') === false && strpos($content[$lastIndex]['content_with_multiple_images_image_link'], 'javascript') === false)
+                                    $content[$lastIndex]['content_with_multiple_images_image_link'] = 'https://' . $content[$lastIndex]['content_with_multiple_images_image_link'];
+                            }
+
                             $image = $childNode->getElementsByTagName('img');
                             if(isset($image[0]) ){
                                 $content[$lastIndex]['content_with_multiple_images_image_alt'] = $image->item(0)->getAttribute('alt');
@@ -256,7 +262,13 @@ $templates = [
                                             $accordions[$lastAccordianGroupIndex]['categorized_documents_repeater_items'][$lastAccordianIndex]['all_links'][$li]['categorized_documents_link_name'] = str_replace($parsedUrl['host'], $domain_name, $accordions[$lastAccordianGroupIndex]['categorized_documents_repeater_items'][$lastAccordianIndex]['all_links'][$li]['categorized_documents_link_name']);
                                         }
                                         else if(!isset($parsedUrl['host'])){
-                                            $accordions[$lastAccordianGroupIndex]['categorized_documents_repeater_items'][$lastAccordianIndex]['all_links'][$li]['categorized_documents_link_name'] = $domain_name . $accordions[$lastAccordianGroupIndex]['categorized_documents_repeater_items'][$lastAccordianIndex]['all_links'][$li]['categorized_documents_link_name'];
+                                            if(strpos($accordions[$lastAccordianGroupIndex]['categorized_documents_repeater_items'][$lastAccordianIndex]['all_links'][$li]['categorized_documents_link_name'], 'mailto:') === false && strpos($accordions[$lastAccordianGroupIndex]['categorized_documents_repeater_items'][$lastAccordianIndex]['all_links'][$li]['categorized_documents_link_name'], 'tel:') === false && strpos($accordions[$lastAccordianGroupIndex]['categorized_documents_repeater_items'][$lastAccordianIndex]['all_links'][$li]['categorized_documents_link_name'], 'javascript') === false)
+                                             $accordions[$lastAccordianGroupIndex]['categorized_documents_repeater_items'][$lastAccordianIndex]['all_links'][$li]['categorized_documents_link_name'] = $domain_name . $accordions[$lastAccordianGroupIndex]['categorized_documents_repeater_items'][$lastAccordianIndex]['all_links'][$li]['categorized_documents_link_name'];
+                                        }
+
+                                        if(strpos($accordions[$lastAccordianGroupIndex]['categorized_documents_repeater_items'][$lastAccordianIndex]['all_links'][$li]['categorized_documents_link_name'], 'https://') === false && strpos($accordions[$lastAccordianGroupIndex]['categorized_documents_repeater_items'][$lastAccordianIndex]['all_links'][$li]['categorized_documents_link_name'], 'http://') === false){
+                                            if(strpos($accordions[$lastAccordianGroupIndex]['categorized_documents_repeater_items'][$lastAccordianIndex]['all_links'][$li]['categorized_documents_link_name'], 'mailto:') === false && strpos($accordions[$lastAccordianGroupIndex]['categorized_documents_repeater_items'][$lastAccordianIndex]['all_links'][$li]['categorized_documents_link_name'], 'tel:') === false && strpos($accordions[$lastAccordianGroupIndex]['categorized_documents_repeater_items'][$lastAccordianIndex]['all_links'][$li]['categorized_documents_link_name'], 'javascript') === false)
+                                                $accordions[$lastAccordianGroupIndex]['categorized_documents_repeater_items'][$lastAccordianIndex]['all_links'][$li]['categorized_documents_link_name'] = 'https://' . $accordions[$lastAccordianGroupIndex]['categorized_documents_repeater_items'][$lastAccordianIndex]['all_links'][$li]['categorized_documents_link_name'];
                                         }
                                     }
                                 }
@@ -574,7 +586,12 @@ $templates = [
                                     $content[$lastIndex]['content_with_multiple_images_invest_image_link'] = str_replace($parsedUrl['host'], $domain_name, $content[$lastIndex]['content_with_multiple_images_invest_image_link']);
                                 }
                                 else if(!isset($parsedUrl['host'])){
+                                    if(strpos($content[$lastIndex]['content_with_multiple_images_invest_image_link'], 'mailto:') === false && strpos($content[$lastIndex]['content_with_multiple_images_invest_image_link'], 'tel:') === false && strpos($content[$lastIndex]['content_with_multiple_images_invest_image_link'], 'javascript') === false)
                                     $content[$lastIndex]['content_with_multiple_images_invest_image_link'] = $domain_name . $content[$lastIndex]['content_with_multiple_images_invest_image_link'];
+                                }
+                                if(strpos($content[$lastIndex]['content_with_multiple_images_invest_image_link'], 'https://') === false && strpos($content[$lastIndex]['content_with_multiple_images_invest_image_link'], 'http://') === false){
+                                    if(strpos($content[$lastIndex]['content_with_multiple_images_invest_image_link'], 'mailto:') === false && strpos($content[$lastIndex]['content_with_multiple_images_invest_image_link'], 'tel:') === false && strpos($content[$lastIndex]['content_with_multiple_images_invest_image_link'], 'javascript') === false)
+                                        $content[$lastIndex]['content_with_multiple_images_invest_image_link'] = 'https://' . $content[$lastIndex]['content_with_multiple_images_invest_image_link'];
                                 }
                             }
 

@@ -42,11 +42,13 @@ function  changeDomain ($downloadImage) {
 				$url = str_replace(["'", "(", ")"], "", $url);
             }
 			else if(!isset($parsedUrl['host'])){
-                $url = str_replace(["'", "(", ")"], "",  $domain_name . $url) ;
+                if(strpos($url, 'mailto:') === false && strpos($url, 'tel:') === false && strpos($url, 'javascript') === false)
+                   $url = str_replace(["'", "(", ")"], "",  $domain_name . $url) ;
 			}
 
-            if(strpos($url, 'https://') !== false && strpos($url, 'http://') !== false){
-                $url = 'https://' . $url;
+            if(strpos($url, 'https://') === false && strpos($url, 'http://') === false){
+                if(strpos($url, 'mailto:') === false && strpos($url, 'tel:') === false && strpos($url, 'javascript') === false)
+                    $url = 'https://' . $url;
             }
         }
         else{
@@ -205,7 +207,12 @@ function scrapePages($index = 0){
                         $contentValue = str_replace($parsedUrl['host'], $domain_name, $contentValue);
                     }
                     else if(!isset($parsedUrl['host'])){
-                        $contentValue = $domain_name . $contentValue;
+                        if(strpos($contentValue, 'mailto:') === false && strpos($contentValue, 'tel:') === false && strpos($contentValue, 'javascript') === false)
+                            $contentValue = $domain_name . $contentValue;
+                    }
+                    if(strpos($contentValue, 'https://') === false && strpos($contentValue, 'http://') === false){
+                        if(strpos($contentValue, 'mailto:') === false && strpos($contentValue, 'tel:') === false && strpos($contentValue, 'javascript') === false)
+                            $contentValue = 'https://' . $contentValue;
                     }
                 }
             }
